@@ -2,6 +2,7 @@ package prasad.app.finance.tracker.server;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -12,10 +13,13 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class ExcelFile {
+class ExcelFile {
 
     @Value("classpath:data.xlsx")
     private Resource excelResource;
+
+    @Autowired
+    private AccountsMapper accountsMapper;
 
     private List<Account> accounts;
 
@@ -25,7 +29,7 @@ public class ExcelFile {
     private void load() {
         try (XSSFWorkbook file = new XSSFWorkbook(excelResource.getInputStream())) {
             XSSFSheet accountsSheet = file.getSheet("Accounts");
-            accounts = new AccountsMapper().map(accountsSheet);
+            accounts = accountsMapper.map(accountsSheet);
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (AttributeSetterMissingException ex) {
@@ -33,11 +37,11 @@ public class ExcelFile {
         }
     }
 
-    public List<Account> getAccounts() {
+    List<Account> getAccounts() {
         return accounts;
     }
 
-    public List<Object> getRecords() {
+    List<Object> getRecords() {
         return records;
     }
 }
